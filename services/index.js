@@ -1,3 +1,5 @@
+//for localhost
+
 // function setSecureCookie(res, token) {
 //   res.cookie("access_token", token, {
 //     httpOnly: true,
@@ -5,8 +7,8 @@
 //   });
 //   return res;
 // }
-// module.exports = { setSecureCookie };
 
+//for production?
 function setSecureCookie(res, token) {
   res.cookie("access_token", token, {
     httpOnly: true,
@@ -17,3 +19,5 @@ function setSecureCookie(res, token) {
 
   return res;
 }
+
+module.exports = { setSecureCookie };
