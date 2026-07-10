@@ -42,7 +42,7 @@ const googleDetails = async (req, res) => {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "7d",
+        expiresIn: "1d",
       },
     );
     setSecureCookie(res, token);
@@ -63,4 +63,34 @@ const googleDetails = async (req, res) => {
   }
 };
 
-module.exports = { googleDetails };
+// controllers/authController.js (add this alongside googleDetails)
+const devLogin = async (req, res) => {
+  try {
+    const { email } = req.body;
+    let user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Test user not found" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
+    setSecureCookie(res, token);
+
+    res.status(200).json({
+      success: true,
+      user: { name: user.name, email: user.email },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Dev login failed" });
+  }
+};
+
+module.exports = { googleDetails, devLogin };

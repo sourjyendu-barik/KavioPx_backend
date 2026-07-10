@@ -3,8 +3,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 const cookiParser = require("cookie-parser");
 const cors = require("cors");
-
-const { connectDb } = require("./db/connectDb.");
+const bodyParser = require("body-parser");
+const { connectDb } = require("./db/connectDb");
 const authRouter = require("./routes/authRouters");
 const app = express();
 app.use(cookiParser());
@@ -14,6 +14,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(bodyParser.json());
 app.use(express.json());
 app.get("/", async (req, res) => {
   try {
@@ -32,7 +33,12 @@ app.use(authMiddleware);
 app.get("/me", (req, res) => {
   res.send("Me is running");
 });
+//logout and mydata
 app.use("/user", require("./routes/userRoutes"));
+//album routes
+app.use("/albums", require("./routes/albumRouters"));
+//image routes
+app.use("/albums", require("./routes/imageRouter"));
 const PORT = 4000;
 const startServer = async () => {
   try {

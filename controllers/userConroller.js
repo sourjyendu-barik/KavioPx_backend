@@ -15,14 +15,19 @@ const myData = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  // res.clearCookie("access_token", {
-  //   httpOnly: true,
-  // });
+  //for localhost
+
   res.clearCookie("access_token", {
     httpOnly: true,
-    secure: true,
-    sameSite: "None",
   });
+
+  //for production
+
+  // res.clearCookie("access_token", {
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: "None",
+  // });
   res.status(200).json({
     success: true,
     message: "Logged out successfully",
