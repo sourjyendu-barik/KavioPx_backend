@@ -10,7 +10,7 @@ const app = express();
 app.use(cookiParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://kavios-pix-nine.vercel.app"],
     credentials: true,
   }),
 );

@@ -163,7 +163,7 @@ const toggleFavoriteImage = async (req, res) => {
     const image = await ImageModel.findOneAndUpdate(
       { _id: imageId, albumId },
       { isFavorite: favorite },
-      { new: true },
+      { returnDocument: "after" }, // instead of { new: true }
     );
 
     if (!image) {

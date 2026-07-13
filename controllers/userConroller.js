@@ -7,6 +7,7 @@ const myData = async (req, res) => {
   res.status(200).json({
     success: true,
     user: {
+      id: user._id,
       name: user.name,
       email: user.email,
       profilePicture: user.profilePicture,
@@ -17,17 +18,17 @@ const myData = async (req, res) => {
 const logout = (req, res) => {
   //for localhost
 
-  res.clearCookie("access_token", {
-    httpOnly: true,
-  });
+  // res.clearCookie("access_token", {
+  //   httpOnly: true,
+  // });
 
   //for production
 
-  // res.clearCookie("access_token", {
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: "None",
-  // });
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
   res.status(200).json({
     success: true,
     message: "Logged out successfully",
