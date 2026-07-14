@@ -168,8 +168,9 @@ const getUserDetails = async (req, res) => {
     const userDetails = await UserDetailsModel.findOne({ userId });
 
     if (!userDetails) {
-      return res.status(404).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
+        userDetails: null,
         message: "UserDetails not found for this user",
       });
     }
