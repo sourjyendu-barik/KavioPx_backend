@@ -53,6 +53,7 @@ const googleDetails = async (req, res) => {
         name: user.name,
         email: user.email,
         profilePicture: user.profilePicture,
+        joined: user.createdAt,
       },
     });
   } catch (error) {

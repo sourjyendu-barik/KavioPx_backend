@@ -11,6 +11,7 @@ const myData = async (req, res) => {
       name: user.name,
       email: user.email,
       profilePicture: user.profilePicture,
+      joined: user.createdAt,
     },
   });
 };
