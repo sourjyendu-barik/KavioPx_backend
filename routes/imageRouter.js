@@ -66,7 +66,7 @@ router.put(
 router.post(
   "/:albumId/images/:imageId/comments",
   loadAlbum,
-  checkAlbumAccessToChange,
+  checkAlbumAccess,
   addCommentToImage,
 );
 
