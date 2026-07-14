@@ -4,5 +4,5 @@ const express = require("express");
 const router = express.Router();
 
 router.post("/google", googleDetails);
-router.post("/developer", devLogin);
+//router.post("/developer", devLogin);
 module.exports = router;

@@ -35,6 +35,8 @@ app.get("/me", (req, res) => {
 });
 //logout and mydata
 app.use("/user", require("./routes/userRoutes"));
+//userdetails
+app.use("/details", require("./routes/userDetailsRoutes"));
 //album routes
 app.use("/albums", require("./routes/albumRouters"));
 //image routes
