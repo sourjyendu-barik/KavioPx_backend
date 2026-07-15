@@ -4,13 +4,12 @@ const { cloudinary } = require("../utils/cloudinaryConfigs");
 const { ImageModel } = require("../models/image");
 const { isValidObjectId } = require("../services/validateObjectId");
 const { validateImageInput } = require("../services/validateImageInput");
-const ALLOWED_EXT = [".jpg", ".jpeg", ".png", ".gif", ".jfif"];
-const MAX_SIZE = 5 * 1024 * 1024;
+const ALLOWED_EXT = [".jpg", ".png", ".gif"];
 
 // POST /albums/:albumId/images
 const addImage = async (req, res) => {
   try {
-    const albumId = req.album._id; // trusted, already validated + fetched by middleware
+    const albumId = req.album._id;
     const { tags, person, isFavorite } = req.body;
     // console.log(albumId, tags, person, isFavorite);
     if (!req.file) {
@@ -42,11 +41,9 @@ const addImage = async (req, res) => {
     if (fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    // only set album cover url if it doesn't already have one
-    if (!req.album.url) {
-      req.album.url = result.secure_url;
-      await req.album.save();
-    }
+
+    req.album.url = result.secure_url;
+    await req.album.save();
 
     const image = await ImageModel.create({
       albumId,
@@ -54,13 +51,13 @@ const addImage = async (req, res) => {
       url: result.secure_url,
       publicId: result.public_id,
       size: req.file.size,
-      tags: tags ? tags.split(",").map((t) => t.trim()) : [],
-      person,
+      tags: tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      person: person,
       isFavorite: isFavorite === "true",
-      comments: [],
-      uploadedAt: new Date(),
     });
-
     return res
       .status(201)
       .json({ success: true, message: "Image uploaded", data: image });
@@ -236,15 +233,25 @@ const deleteImage = async (req, res) => {
         .json({ success: false, message: "Image not found in this album" });
     }
 
-    // remove from Cloudinary first, then DB
+    // Remove from Cloudinary first
     if (image.publicId) {
-      await cloudinary.uploader.destroy(image.publicId);
+      const result = await cloudinary.uploader.destroy(image.publicId);
+      console.error(result);
+      if (result.result !== "ok") {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to delete image from Cloudinary",
+        });
+      }
     }
+
+    // Only delete from MongoDB if Cloudinary deletion succeeded
     await image.deleteOne();
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Image deleted successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Image deleted successfully",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "Server error" });

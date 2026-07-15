@@ -7,7 +7,7 @@ const {
   isAlbumNameTaken,
   createAlbumRecord,
 } = require("../services/albumServices");
-
+const { cloudinary } = require("../utils/cloudinaryConfigs");
 const createAlbum = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -78,10 +78,10 @@ const addUsers = async (req, res) => {
 
     // Step 1: validate that emails is a non-empty array
     const { emails } = req.body;
-    if (!Array.isArray(emails) || emails.length === 0) {
+    if (!Array.isArray(emails)) {
       return res.status(422).json({
         success: false,
-        message: "Emails must be a non-empty array",
+        message: "Emails must be an array",
       });
     }
 
@@ -110,10 +110,13 @@ const addUsers = async (req, res) => {
       });
     }
 
-    // Step 5: merge new emails into sharedWith, removing duplicates via Set
-    albumDetails.sharedWith = [
-      ...new Set([...albumDetails.sharedWith, ...emails]),
-    ];
+    // // Step 5: merge new emails into sharedWith, removing duplicates via Set
+    // albumDetails.sharedWith = [
+    //   ...new Set([...albumDetails.sharedWith, ...emails]),
+    // ];
+
+    // Step 5: replace sharedWith with the exact set of emails sent
+    albumDetails.sharedWith = [...new Set(emails)];
 
     // Step 6: persist the updated album document
     await albumDetails.save();
@@ -133,7 +136,23 @@ const addUsers = async (req, res) => {
 const deleteAlbum = async (req, res) => {
   try {
     const albumDetails = req.album; // already fetched + ownership verified by middleware
+    // Get all images in the album
+    const images = await ImageModel.find({ albumId: albumDetails._id });
 
+    // Delete images from Cloudinary
+    for (const image of images) {
+      if (image.publicId) {
+        const result = await cloudinary.uploader.destroy(image.publicId);
+
+        if (result.result !== "ok") {
+          return res.status(500).json({
+            success: false,
+            message: `Failed to delete image '${image.name}' from Cloudinary.`,
+          });
+        }
+      }
+    }
+    //delete image documents and album document
     await Promise.all([
       ImageModel.deleteMany({ albumId: albumDetails._id }),
       albumDetails.deleteOne(),
