@@ -11,9 +11,12 @@ const findUsersSuggestion = async (req, res) => {
     const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const search = escapeRegex(q.trim());
-    //const restrictedUserIds = ["6a586862cf7f960ee72f275e"];
+    const restrictedUserIds = [
+      //"6a586862cf7f960ee72f275e"
+      req.user.userId,
+    ];
     const users = await UserModel.find({
-      //_id: { $nin: restrictedUserIds },
+      _id: { $nin: restrictedUserIds },
       email: {
         $regex: `^${search}`,
         $options: "i", // case-insensitive
